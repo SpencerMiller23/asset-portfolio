@@ -1,9 +1,34 @@
-{% extends "layout.html" %}
+{% extends "holdings/layout.html" %}
 
-{% block title %}{% endblock %}
+{% block title %}Dashboard{% endblock %}
 
 {% block head %}{% endblock %}
 
 {% block body %}
-  
+
+  <div id="app" />
+  <script type="text/babel">
+    class App extends React.Component {
+      render() {
+        return (
+
+          <div class="row">
+            <div class="col-3">
+              <div class="asset__container flex flex-horizontal">
+                <div>
+                  <h4>{{ symbol }}</h4>
+                  <p>{{ name }}</p>
+                </div>
+                <p>{{ price }}</p>
+              </div>
+            </div>
+          </div>
+
+        );
+      }
+    }
+
+    ReactDOM.render(<App />, document.querySelector("#app"));
+  </script>
+
 {% endblock %}
