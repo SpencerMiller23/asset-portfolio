@@ -4,6 +4,8 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.urls import reverse
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django import forms
 
 import requests
 import json
@@ -63,7 +65,7 @@ def register(request):
         profile = Profile()
         profile.user = user
         profile.save()
-        return HttpResponseRedirect(reverse("index"))
+        return HttpResponseRedirect(reverse("dashboard"))
     else:
         return render(request, "holdings/register.html")
 
@@ -73,6 +75,17 @@ def dashboard(request):
 
 def user_holdings(request):
     date = datetime.datetime.now()
+    date_year = int(date.strftime("%Y"))
+    date_month = int(date.strftime("%m"))
+    date_day = int(date.strftime("%d"))
+    date_number = int(date.strftime("%w"))
+    if date_number == 0:
+        date_day -= 2
+    elif date_number == 1:
+        date_day -= 3
+    else:
+        date_day -= 1
+    date = str(date_year) + "-" + str(date_month) + "-" + str(date_day)
     user = Profile.objects.get(user=request.user)
     positions = user.positions.all()
     data_response = {}
@@ -80,13 +93,24 @@ def user_holdings(request):
     for position in positions:
         position_data = {}
         position_data["symbol"] = position.symbol
-        response = requests.get("https://www.alphavantage.co/query?function=OVERVIEW", params={"symbol": position.symbol, "apikey": "4JU2DZ6Q8876MFXK"})
-        data = response.json()
-        name = data["Name"]
+        try:
+            response = requests.get("https://www.alphavantage.co/query?function=OVERVIEW", params={"symbol": position.symbol, "apikey": "4JU2DZ6Q8876MFXK"})
+            data = response.json()
+            name = data["Name"]
+        except:
+            name = "N/A"
         position_data["name"] = name
-        response = requests.get("https://www.alphavantage.co/query?function=TIME_SERIES_DAILY", params={"symbol": position.symbol, "apikey": "4JU2DZ6Q8876MFXK"})
-        data = response.json()
-        price = data["Time Series (Daily)"]["2020-10-28"]["4. close"]
+        try:
+            response = requests.get("https://www.alphavantage.co/query?function=TIME_SERIES_DAILY", params={"symbol": position.symbol, "apikey": "4JU2DZ6Q8876MFXK"})
+            data = response.json()
+            price = data["Time Series (Daily)"][date]["4. close"]
+        except:
+            price = "N/A"
         position_data["price"] = price
         data_response["holdings"].append(position_data)
     return JsonResponse(data_response, safe=False)
+
+@csrf_exempt
+def add_position(request):
+    print("Success")
+    return JsonResponse({}, status=201)

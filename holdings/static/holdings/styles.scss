@@ -1,4 +1,5 @@
 $base-background: #101010;
+$container-background: #383838;
 $font-color-default: #FFFFFF;
 
 body {
@@ -7,6 +8,10 @@ body {
 
 h1, h2, h3, h4, h5, h6, p, a {
   color: $font-color-default;
+}
+
+.row {
+  margin-bottom: 15px;
 }
 
 .flex {
@@ -23,10 +28,37 @@ h1, h2, h3, h4, h5, h6, p, a {
   padding: 15px;
 }
 
+.stock__form--container {
+  background-color: $container-background;
+  margin: auto;
+  border-radius: 5px;
+  padding: 30px;
+
+  h4 {
+    text-align: center;
+  }
+
+  .btn-primary {
+    margin: 5px;
+    height: 50px;
+    width: 75px;
+  }
+
+}
+
+.stock__form--input {
+  border-radius: 5px;
+  background-color: #101010;
+  color: white !important;
+  padding: 10px 15px;
+  margin: 5px;
+  border: 0px;
+}
+
 .asset__container {
   border-radius: 5px;
   padding: 15px;
-  background-color: #383838;
+  background-color: $container-background;
   justify-content: space-between;
   -webkit-justify-content: space-between;
 }

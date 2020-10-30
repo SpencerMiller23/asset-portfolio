@@ -14,11 +14,71 @@
     class App extends React.Component {
       render() {
         return (
-          <div class="row">
-            <UserHoldings />
+
+          <div class="container">
+            <div class="row">
+              <StockForm />
+            </div>
+            <div class="row">
+              <UserHoldings />
+            </div>
           </div>
 
         );
+      }
+    }
+
+    class StockForm extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = {};
+
+        this.handleChange = this.handleChange.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
+      }
+
+      handleChange(event) {
+        const target = event.target;
+        const name = target.name;
+        const value = target.value;
+
+        this.setState({
+          [name]: value
+        });
+      }
+
+      handleSubmit(event) {
+        fetch('http://127.0.0.1:8000/add_position', {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            firstParam: 'yourValue',
+            secondParam: 'yourOtherValue'
+          })
+        });
+        event.preventDefault();
+      }
+
+      render() {
+        return (
+          <div class="stock__form--container">
+            <h4>Add New Position</h4>
+            <div>
+              <form onSubmit={this.handleSubmit}>
+                <div class="flex flex-row stock__form">
+                  <input type="text" name="symbol" value={this.state.value} placeholder="Symbol" onChange={this.handleChange} class="stock__form--input" />
+                  <input type="number" name="shares" value={this.state.value} placeholder="Shares" onChange={this.handleChange} class="stock__form--input" />
+                  <input type="number" name="price" value={this.state.value} placeholder="Price" onChange={this.handleChange} class="stock__form--input" />
+                  <input type="date" name="date" value={this.state.value} placeholder="Date" onChange={this.handleChange} class="stock__form--input" />
+                  <input type="submit" value="Save" class="btn btn-primary" />
+                </div>
+              </form>
+            </div>
+          </div>
+        )
       }
     }
 
