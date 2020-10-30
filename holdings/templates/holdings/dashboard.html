@@ -6,29 +6,74 @@
 
 {% block body %}
 
-  <div id="app" />
+  <div class="app__container">
+    <div id="app" />
+  </div>
   <script type="text/babel">
+
     class App extends React.Component {
       render() {
         return (
-
           <div class="row">
-            <div class="col-3">
-              <div class="asset__container flex flex-horizontal">
-                <div>
-                  <h4>{{ symbol }}</h4>
-                  <p>{{ name }}</p>
-                </div>
-                <p>{{ price }}</p>
-              </div>
-            </div>
+            <UserHoldings />
           </div>
 
         );
       }
     }
 
+    class UserHoldings extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = {
+          error: null,
+          isLoaded: false,
+          items: []
+        };
+      }
+
+      componentDidMount() {
+        fetch("http://127.0.0.1:8000/user_holdings")
+          .then(res => res.json())
+          .then(
+            (result) => {
+              this.setState({
+                isLoaded: true,
+                items: result.holdings
+              });
+            },
+            // Note: it's important to handle errors here
+            // instead of a catch() block so that we don't swallow
+            // exceptions from actual bugs in components.
+            (error) => {
+              this.setState({
+                isLoaded: true,
+                error
+              });
+            }
+          )
+      }
+
+      render() {
+        const { error, isLoaded, items } = this.state;
+        return (
+          items.map(item => (
+            <div class="col-4">
+              <div class="asset__container flex flex-horizontal">
+                <div>
+                  <h4>{ item.symbol }</h4>
+                  <p>{ item.name }</p>
+                </div>
+                <p>{ item.price }</p>
+              </div>
+            </div>
+          ))
+        );
+      }
+    }
+
     ReactDOM.render(<App />, document.querySelector("#app"));
+
   </script>
 
 {% endblock %}

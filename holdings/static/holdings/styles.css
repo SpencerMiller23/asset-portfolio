@@ -16,6 +16,10 @@ h1, h2, h3, h4, h5, h6, p, a {
   -webkit-flex-direction: row;
 }
 
+.app__container {
+  padding: 15px;
+}
+
 .asset__container {
   border-radius: 5px;
   padding: 15px;
