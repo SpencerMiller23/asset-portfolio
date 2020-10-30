@@ -112,5 +112,14 @@ def user_holdings(request):
 
 @csrf_exempt
 def add_position(request):
-    print("Success")
+    data = json.loads(request.body)
+    symbol = data["symbol"]
+    date = data["date"]
+    shares = data["shares"]
+    price = data["price"]
+    position = Position.objects.create(symbol=symbol, date=date, shares=shares, price=price)
+    position.save()
+    profile = Profile.objects.get(user=request.user)
+    profile.positions.add(position)
+    profile.save()
     return JsonResponse({}, status=201)
