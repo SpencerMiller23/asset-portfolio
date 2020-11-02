@@ -16,6 +16,9 @@
         return (
 
           <div class="container">
+          <div class="row portfolio__container">
+            <UserPortfolio />
+          </div>
             <div class="row">
               <StockForm />
             </div>
@@ -24,6 +27,51 @@
             </div>
           </div>
 
+        );
+      }
+    }
+
+    class UserPortfolio extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = {
+          error: null,
+          isLoaded: false,
+          items: []
+        };
+      }
+
+      componentDidMount() {
+        fetch("http://127.0.0.1:8000/user_portfolio")
+          .then(res => res.json())
+          .then(
+            (result) => {
+              this.setState({
+                isLoaded: true,
+                items: result
+              });
+            },
+            // Note: it's important to handle errors here
+            // instead of a catch() block so that we don't swallow
+            // exceptions from actual bugs in components.
+            (error) => {
+              this.setState({
+                isLoaded: true,
+                error
+              });
+            }
+          )
+      }
+
+      render() {
+        const { error, isLoaded, items } = this.state;
+        return (
+          <div class="col-12 col-md-3">
+            <h5>Your Holdings:</h5>
+            <h3>${ items["value"] }</h3>
+            <h6>Total Gain:</h6>
+            <h6>{ items["gains"] } ({ items["change"] }%)</h6>
+          </div>
         );
       }
     }
@@ -70,11 +118,11 @@
             <h4>Add New Position</h4>
             <div>
               <form onSubmit={this.handleSubmit}>
-                <div class="flex flex-row stock__form">
-                  <input type="text" name="symbol" value={this.state.value} placeholder="Symbol" onChange={this.handleChange} class="stock__form--input" />
-                  <input type="text" name="shares" value={this.state.value} placeholder="Shares" onChange={this.handleChange} class="stock__form--input" />
-                  <input type="text" name="price" value={this.state.value} placeholder="Price" onChange={this.handleChange} class="stock__form--input" />
-                  <input type="date" name="date" value={this.state.value} placeholder="Date" onChange={this.handleChange} class="stock__form--input" />
+                <div class="flex flex-responsive stock__form">
+                  <input type="text" name="symbol" value={this.state.value} placeholder="Symbol" onChange={this.handleChange} class="stock__form--input" required />
+                  <input type="text" name="shares" value={this.state.value} placeholder="Shares" onChange={this.handleChange} class="stock__form--input" required />
+                  <input type="text" name="price" value={this.state.value} placeholder="Price" onChange={this.handleChange} class="stock__form--input" required />
+                  <input type="date" name="date" value={this.state.value} placeholder="Date" onChange={this.handleChange} class="stock__form--input" required />
                   <input type="submit" value="Save" class="btn btn-primary" />
                 </div>
               </form>
@@ -120,7 +168,7 @@
         const { error, isLoaded, items } = this.state;
         return (
           items.map(item => (
-            <div class="col-4">
+            <div class="col-12 col-md-4">
               <div class="asset__container flex flex-horizontal">
                 <div>
                   <h4>{ item.symbol }</h4>

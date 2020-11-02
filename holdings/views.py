@@ -10,6 +10,8 @@ from django import forms
 import requests
 import json
 import datetime
+import time
+import finnhub
 
 from .models import User, Position, Profile
 
@@ -74,18 +76,8 @@ def dashboard(request):
     return render (request, "holdings/dashboard.html")
 
 def user_holdings(request):
-    date = datetime.datetime.now()
-    date_year = int(date.strftime("%Y"))
-    date_month = int(date.strftime("%m"))
-    date_day = int(date.strftime("%d"))
-    date_number = int(date.strftime("%w"))
-    if date_number == 0:
-        date_day -= 2
-    elif date_number == 1:
-        date_day -= 3
-    else:
-        date_day -= 1
-    date = str(date_year) + "-" + str(date_month) + "-" + str(date_day)
+    key = "buffvmn48v6o04cutb8g"
+    finnhub_client = finnhub.Client(api_key=key)
     user = Profile.objects.get(user=request.user)
     positions = user.positions.all()
     data_response = {}
@@ -94,16 +86,14 @@ def user_holdings(request):
         position_data = {}
         position_data["symbol"] = position.symbol
         try:
-            response = requests.get("https://www.alphavantage.co/query?function=OVERVIEW", params={"symbol": position.symbol, "apikey": "4JU2DZ6Q8876MFXK"})
-            data = response.json()
-            name = data["Name"]
+            data = finnhub_client.company_profile(symbol=position.symbol)
+            name = data['name']
         except:
             name = "N/A"
         position_data["name"] = name
         try:
-            response = requests.get("https://www.alphavantage.co/query?function=TIME_SERIES_DAILY", params={"symbol": position.symbol, "apikey": "4JU2DZ6Q8876MFXK"})
-            data = response.json()
-            price = data["Time Series (Daily)"][date]["4. close"]
+            data = finnhub_client.quote(position.symbol)
+            price = data['c']
         except:
             price = "N/A"
         position_data["price"] = price
@@ -123,3 +113,23 @@ def add_position(request):
     profile.positions.add(position)
     profile.save()
     return JsonResponse({}, status=201)
+
+def user_portfolio(request):
+    key = "buffvmn48v6o04cutb8g"
+    finnhub_client = finnhub.Client(api_key=key)
+    user = Profile.objects.get(user=request.user)
+    positions = user.positions.all()
+    total_invested = 0
+    total_value = 0
+    data_response = {}
+    for position in positions:
+        initial_value = (position.shares) * (position.purchase_price)
+        total_invested += initial_value
+        data = finnhub_client.quote(position.symbol)
+        price = data['c']
+        total_value += int(price) * (position.shares)
+    percent_change = ((total_value - total_invested) / total_invested) * 100
+    data_response["value"] = round(total_value, 2)
+    data_response["gains"] = round((total_value - total_invested), 2)
+    data_response["change"] = round(percent_change, 2)
+    return JsonResponse(data_response, safe=False)

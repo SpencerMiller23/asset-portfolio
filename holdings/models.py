@@ -9,7 +9,7 @@ class Position(models.Model):
     symbol = models.CharField(max_length=10)
     date = models.DateField()
     shares = models.DecimalField(max_digits=1000000, decimal_places=3)
-    price = models.DecimalField(max_digits=1000000, decimal_places=3)
+    purchase_price = models.DecimalField(max_digits=1000000, decimal_places=3)
 
 class Profile(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
