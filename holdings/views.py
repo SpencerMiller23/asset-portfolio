@@ -107,7 +107,7 @@ def add_position(request):
     date = data["date"]
     shares = data["shares"]
     price = data["price"]
-    position = Position.objects.create(symbol=symbol, date=date, shares=shares, price=price)
+    position = Position.objects.create(symbol=symbol, date=date, shares=shares, purchase_price=price)
     position.save()
     profile = Profile.objects.get(user=request.user)
     profile.positions.add(position)

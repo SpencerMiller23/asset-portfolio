@@ -22,7 +22,7 @@
             <div class="row">
               <StockForm />
             </div>
-            <div class="row">
+            <div class="row" id="holdings__container">
               <UserHoldings />
             </div>
           </div>
@@ -68,7 +68,7 @@
         return (
           <div class="col-12 col-md-3">
             <h5>Your Holdings:</h5>
-            <h3>${ items["value"] }</h3>
+            <h2>${ items["value"] }</h2>
             <h6>Total Gain:</h6>
             <h6>{ items["gains"] } ({ items["change"] }%)</h6>
           </div>
@@ -80,7 +80,6 @@
       constructor(props) {
         super(props);
         this.state = {};
-
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
       }
@@ -93,6 +92,13 @@
         this.setState({
           [name]: value
         });
+      }
+
+      clearFields() {
+        this.refs.fieldSymbol.value="";
+        this.refs.fieldShares.value="";
+        this.refs.fieldPrice.value="";
+        this.refs.fieldDate.value="";
       }
 
       handleSubmit(event) {
@@ -109,6 +115,7 @@
             date: this.state.date
           })
         });
+        this.clearFields();
         event.preventDefault();
       }
 
@@ -119,11 +126,11 @@
             <div>
               <form onSubmit={this.handleSubmit}>
                 <div class="flex flex-responsive stock__form">
-                  <input type="text" name="symbol" value={this.state.value} placeholder="Symbol" onChange={this.handleChange} class="stock__form--input" required />
-                  <input type="text" name="shares" value={this.state.value} placeholder="Shares" onChange={this.handleChange} class="stock__form--input" required />
-                  <input type="text" name="price" value={this.state.value} placeholder="Price" onChange={this.handleChange} class="stock__form--input" required />
-                  <input type="date" name="date" value={this.state.value} placeholder="Date" onChange={this.handleChange} class="stock__form--input" required />
-                  <input type="submit" value="Save" class="btn btn-primary" />
+                  <input type="text" name="symbol" value={this.state.value} placeholder="Symbol" onChange={this.handleChange} class="stock__form--input" ref="fieldSymbol" required />
+                  <input type="text" name="shares" value={this.state.value} placeholder="Shares" onChange={this.handleChange} class="stock__form--input" ref="fieldShares" required />
+                  <input type="text" name="price" value={this.state.value} placeholder="Price" onChange={this.handleChange} class="stock__form--input" ref="fieldPrice" required />
+                  <input type="date" name="date" value={this.state.value} placeholder="Date" onChange={this.handleChange} class="stock__form--input" ref="fieldDate" required />
+                  <input type="submit" value="Save" class="btn btn-primary btn-save" />
                 </div>
               </form>
             </div>
@@ -174,7 +181,7 @@
                   <h4>{ item.symbol }</h4>
                   <p>{ item.name }</p>
                 </div>
-                <p>{ item.price }</p>
+                <p>${ item.price }</p>
               </div>
             </div>
           ))
